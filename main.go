@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"time"
 
+	"sched/handlers"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"sched/handlers"
 )
 
 // User represents the user model
@@ -52,7 +53,7 @@ func main() {
 	r.DELETE("/tasks/:id", handlers.DeleteTask(db))
 
 	// Run the server
-	r.Run(":8080")
+	r.Run(":9080")
 }
 
 // User Endpoints
