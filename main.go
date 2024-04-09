@@ -20,7 +20,7 @@ type User struct {
 
 func main() {
 	// Database connection
-	db, err := pgxpool.New(context.Background(), "postgres://goatcheese:nHY67ujm@10.0.2.8:5432/schedule")
+	db, err := pgxpool.New(context.Background(), "postgres://goatcheese:B8qAieedivIiOiTdtW0VgWWohShfaMSm@dpg-coasek21hbls73ftkiig-a.oregon-postgres.render.com/routines_7w39")
 	if err != nil {
 		log.Fatal("Error connecting to the database: ", err)
 	}
