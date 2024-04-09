@@ -4,8 +4,10 @@ package handlers
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
 	"net/http"
+	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,8 +15,8 @@ import (
 
 // Task represents the task model
 type Task struct {
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
 }
 
 // CreateTask creates a new task
