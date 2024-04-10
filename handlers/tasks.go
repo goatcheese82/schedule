@@ -17,11 +17,47 @@ import (
 type Task struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
+	EventID   int       `json:"event_id"` // Foreign key referencing Event ID
 }
 
-const timeOnlyFormat = "15:04:05"
+// // CreateTask creates a new task
+// func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		var task Task
 
-// CreateTask creates a new task
+// 		if err := c.BindJSON(&task); err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
+
+// 		// Parse start_time using the custom format
+// 		startTime, err := time.Parse("15:04:05", task.StartTime.Format("15:04:05"))
+// 		if err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
+
+// 		// Parse end_time using the custom format
+// 		endTime, err := time.Parse("15:04:05", task.EndTime.Format("15:04:05"))
+// 		if err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
+
+// 		// Set the parsed times back to the Task struct
+// 		task.StartTime = startTime
+// 		task.EndTime = endTime
+
+// 		_, err = db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time, event_id) VALUES ($1, $2, $3)", task.StartTime, task.EndTime, task.EventID)
+// 		if err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 			return
+// 		}
+
+// 		c.Status(http.StatusCreated)
+// 	}
+// }
+
 func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var task Task
@@ -31,25 +67,45 @@ func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
-		// Parse start_time using the custom format
-		startTime, err := time.Parse(timeOnlyFormat, task.StartTime.Format(timeOnlyFormat))
+		// Parse location from request (optional, depending on your implementation)
+		location, err := time.LoadLocation("America/Los_Angeles") // Replace with appropriate location if needed
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Parse end_time using the custom format
-		endTime, err := time.Parse(timeOnlyFormat, task.EndTime.Format(timeOnlyFormat))
+		// Parse received times (assuming format remains "15:04:05")
+		startTime, err := time.ParseInLocation("15:04:05", task.StartTime.Format("15:04:05"), location)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Set the parsed times back to the Task struct
-		task.StartTime = startTime
-		task.EndTime = endTime
+		endTime, err := time.ParseInLocation("15:04:05", task.EndTime.Format("15:04:05"), location)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-		_, err = db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time) VALUES ($1, $2)", task.StartTime, task.EndTime)
+		// Convert parsed times to UTC
+		startTime = startTime.In(time.UTC)
+		endTime = endTime.In(time.UTC)
+
+		// Check if event_id exists
+		var exists bool
+		err = db.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM events WHERE id = $1)", task.EventID).Scan(&exists)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			return
+		}
+
+		if !exists {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
+			return
+		}
+
+		// Insert task into database
+		_, err = db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time, event_id) VALUES ($1, $2, $3)", startTime, endTime, task.EventID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
