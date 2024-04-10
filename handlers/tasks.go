@@ -20,44 +20,6 @@ type Task struct {
 	EventID   int       `json:"event_id"` // Foreign key referencing Event ID
 }
 
-// // CreateTask creates a new task
-// func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		var task Task
-
-// 		if err := c.BindJSON(&task); err != nil {
-// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		// Parse start_time using the custom format
-// 		startTime, err := time.Parse("15:04:05", task.StartTime.Format("15:04:05"))
-// 		if err != nil {
-// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		// Parse end_time using the custom format
-// 		endTime, err := time.Parse("15:04:05", task.EndTime.Format("15:04:05"))
-// 		if err != nil {
-// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		// Set the parsed times back to the Task struct
-// 		task.StartTime = startTime
-// 		task.EndTime = endTime
-
-// 		_, err = db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time, event_id) VALUES ($1, $2, $3)", task.StartTime, task.EndTime, task.EventID)
-// 		if err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		c.Status(http.StatusCreated)
-// 	}
-// }
-
 func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var task Task
