@@ -24,16 +24,16 @@ func main() {
 	// CRUD endpoints for User
 	r.POST("/users", handlers.CreateUser(db))
 	r.GET("/users", handlers.GetUsers(db))
-	r.GET("/users/:username", handlers.GetUser(db))
-	r.PUT("/users/:username", handlers.UpdateUser(db))
-	r.DELETE("/users/:username", handlers.DeleteUser(db))
+	r.GET("/users/:id", handlers.GetUser(db))
+	r.PUT("/users/:id", handlers.UpdateUser(db))
+	r.DELETE("/users/:id", handlers.DeleteUser(db))
 
 	// CRUD endpoints for Event
 	r.POST("/events", handlers.CreateEvent(db))
 	r.GET("/events", handlers.GetEvents(db))
-	r.GET("/events/:title", handlers.GetUser(db))
-	r.PUT("/events/:title", handlers.UpdateUser(db))
-	r.DELETE("/events/:title", handlers.DeleteUser(db))
+	r.GET("/events/:id", handlers.GetEvent(db))
+	r.PUT("/events/:id", handlers.UpdateEvent(db))
+	r.DELETE("/events/:id", handlers.DeleteEvent(db))
 
 	//CRUD endpoints for Task
 	r.POST("/tasks", handlers.CreateTask(db))
