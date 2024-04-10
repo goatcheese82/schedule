@@ -3,20 +3,12 @@ package main
 import (
 	"context"
 	"log"
-	"time"
 
 	"sched/handlers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-// User represents the user model
-type User struct {
-	Username string    `json:"username"`
-	Email    string    `json:"email"`
-	Birthday time.Time `json:"birthday"`
-}
 
 func main() {
 	// Database connection

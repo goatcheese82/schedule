@@ -13,6 +13,7 @@ import (
 
 // Event represents the event model
 type Event struct {
+	Id    int    `json:"Id"`
 	Title string `json:"title"`
 	Image string `json:"image"`
 }
