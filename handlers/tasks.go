@@ -19,16 +19,37 @@ type Task struct {
 	EndTime   time.Time `json:"end_time"`
 }
 
+const timeOnlyFormat = "15:04:05"
+
 // CreateTask creates a new task
 func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var task Task
+
 		if err := c.BindJSON(&task); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		_, err := db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time) VALUES ($1, $2)", task.StartTime, task.EndTime)
+		// Parse start_time using the custom format
+		startTime, err := time.Parse(timeOnlyFormat, task.StartTime.Format(timeOnlyFormat))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Parse end_time using the custom format
+		endTime, err := time.Parse(timeOnlyFormat, task.EndTime.Format(timeOnlyFormat))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Set the parsed times back to the Task struct
+		task.StartTime = startTime
+		task.EndTime = endTime
+
+		_, err = db.Exec(context.Background(), "INSERT INTO tasks (start_time, end_time) VALUES ($1, $2)", task.StartTime, task.EndTime)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
