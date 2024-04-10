@@ -29,37 +29,18 @@ func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
-		// Extract time portion from StartTime
-		startTimeStr := task.StartTime.Format("15:04:05")[0:10] // Extract only the first 10 characters (time portion)
-		endTimeStr := task.EndTime.Format("15:04:05")[0:10]
-
-		// Parse times using extracted time strings
-		var startTime, endTime time.Time
-		var err error
-
-		// Parse location from request (optional, depending on your implementation)
-		location, err := time.LoadLocation("America/Los_Angeles") // Replace with appropriate location if needed
+		// Parse start and end times
+		startTime, err := time.Parse("15:04:05", task.StartTime.Format("15:04:05"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start time format"})
 			return
 		}
 
-		// Parse received times (assuming format remains "15:04:05")
-		startTime, err = time.ParseInLocation("15:04:05", startTimeStr, location)
+		endTime, err := time.Parse("15:04:05", task.EndTime.Format("15:04:05"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end time format"})
 			return
 		}
-
-		endTime, err = time.ParseInLocation("15:04:05", endTimeStr, location)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		// Convert parsed times to UTC
-		startTime = startTime.In(time.UTC)
-		endTime = endTime.In(time.UTC)
 
 		// Check if event_id exists
 		var exists bool
