@@ -30,13 +30,13 @@ func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		// Parse start and end times
-		startTime, err := time.Parse("15:04:05", task.StartTime.Format("15:04:05"))
+		startTime, err := parseTime(task.StartTime.String())
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start time format"})
 			return
 		}
 
-		endTime, err := time.Parse("15:04:05", task.EndTime.Format("15:04:05"))
+		endTime, err := parseTime(task.EndTime.String())
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end time format"})
 			return
@@ -64,6 +64,15 @@ func CreateTask(db *pgxpool.Pool) gin.HandlerFunc {
 
 		c.Status(http.StatusCreated)
 	}
+}
+
+func parseTime(timeStr string) (time.Time, error) {
+	layout := "15:04:05"
+	t, err := time.Parse(layout, timeStr)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return t, nil
 }
 
 // GetTasks retrieves all tasks
