@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"sched/handlers"
+	"sched/app/handlers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -12,7 +12,9 @@ import (
 
 func main() {
 	// Database connection
-	db, err := pgxpool.New(context.Background(), "postgres://goatcheese:B8qAieedivIiOiTdtW0VgWWohShfaMSm@dpg-coasek21hbls73ftkiig-a.oregon-postgres.render.com/routines_7w39")
+	const DATABASE_URL string = "postgres://goatcheese:nHY67ujm@10.0.2.8:5432/schedule"
+
+	db, err := pgxpool.New(context.Background(), DATABASE_URL)
 	if err != nil {
 		log.Fatal("Error connecting to the database: ", err)
 	}
@@ -41,6 +43,13 @@ func main() {
 	r.GET("/tasks/:id", handlers.GetTask(db))
 	r.PUT("/tasks/:id", handlers.UpdateTask(db))
 	r.DELETE("/tasks/:id", handlers.DeleteTask(db))
+
+	//CRUD endpoints for Routine
+	r.POST("/routines", handlers.CreateRoutine(db))
+	r.GET("/routines", handlers.GetRoutines(db))
+	r.GET("/routines/:id", handlers.GetRoutine(db))
+	r.PUT("/routines/:id", handlers.UpdateRoutine(db))
+	r.DELETE("/routines/:id", handlers.DeleteRoutine(db))
 
 	// Run the server
 	r.Run(":9080")
